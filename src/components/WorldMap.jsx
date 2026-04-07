@@ -9,13 +9,14 @@ import { supabase } from "../lib/supabase";
 const FONT = "'JetBrains Mono', monospace";
 const BG = "#080808";
 const COUNTRY_FILL = "#1e1e1e";
-const COUNTRY_STROKE = "#444444";
-const MARKER_FILL = "#e6edf3";
-const MARKER_HOVER = "#8b949e";
+const COUNTRY_STROKE = "#2a2a2a";
+const MARKER_FILL = "#96ea28";
+const MARKER_HOVER = "#ffffff";
 const TOOLTIP_BG = "#111111";
 const TOOLTIP_BORDER = "#2a2a2a";
 const TEXT_DIM = "#555555";
-const TEXT_BRIGHT = "#e0e0e0";
+const TEXT_BRIGHT = "#ffffff";
+const ACCENT = "#96ea28";
 
 // Нормализуем строку из БД в формат приложения
 const normalize = (c) => ({
@@ -301,11 +302,11 @@ export default function WorldMap() {
         position: "absolute", top: 28, left: 36,
         fontFamily: FONT,
       }}>
-        <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 6, pointerEvents: "none", userSelect: "none" }}>
-          yakutia@russia:~$ ./map --show coders
+        <div style={{ fontSize: 11, color: ACCENT, marginBottom: 6, pointerEvents: "none", userSelect: "none" }}>
+          root@driveecon:~$ ./map --show coders
         </div>
         <div style={{ fontSize: 22, fontWeight: 700, color: TEXT_BRIGHT, letterSpacing: "0.01em", pointerEvents: "none", userSelect: "none" }}>
-          карта разработчиков из Якутии
+          driveeCON · карта разработчиков
         </div>
         <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 6, pointerEvents: "none", userSelect: "none" }}>
           {allCoders.length} developers found_
@@ -316,10 +317,10 @@ export default function WorldMap() {
             marginTop: 14,
             display: "block",
             background: "none",
-            border: "1px solid #2a2a2a",
+            border: `1px solid ${ACCENT}`,
             borderRadius: 4,
             padding: "7px 16px",
-            color: TEXT_DIM,
+            color: ACCENT,
             fontFamily: FONT,
             fontSize: 11,
             cursor: "pointer",
@@ -328,6 +329,21 @@ export default function WorldMap() {
         >
           → отметиться на карте
         </button>
+        <a
+          href="https://driveecon.ru"
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            display: "block",
+            marginTop: 10,
+            fontSize: 11,
+            color: TEXT_DIM,
+            textDecoration: "none",
+            letterSpacing: "0.05em",
+          }}
+        >
+          driveecon.ru ↗
+        </a>
       </div>
 
       <Modal data={modal} onClose={() => setModal(null)} />
@@ -344,28 +360,31 @@ export default function WorldMap() {
       {tooltip && (
         <div style={{
           position: "absolute", left: tooltip.x + 14, top: tooltip.y - 10,
-          background: TOOLTIP_BG, border: `1px solid ${TOOLTIP_BORDER}`,
+          background: TOOLTIP_BG, border: `1px solid #222`,
           borderRadius: 4, padding: "10px 14px", pointerEvents: "none",
           minWidth: 200, fontFamily: FONT, boxShadow: "0 4px 24px rgba(0,0,0,0.6)",
         }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: TEXT_BRIGHT, marginBottom: 6 }}>
+          <div style={{ fontSize: 11, color: ACCENT, marginBottom: 6 }}>
+            root@driveecon:~$ whoami
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#ffffff", marginBottom: 6 }}>
             {tooltip.data.name}
           </div>
-          <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 3 }}>
+          <div style={{ fontSize: 11, color: "#444", marginBottom: 3 }}>
             → {tooltip.data.location}
           </div>
           {tooltip.data.specialization && (
-            <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 3 }}>
+            <div style={{ fontSize: 11, color: "#444", marginBottom: 3 }}>
               → {tooltip.data.specialization}
             </div>
           )}
           {tooltip.data.company && (
-            <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 8 }}>
+            <div style={{ fontSize: 11, color: "#444", marginBottom: 8 }}>
               → {tooltip.data.company}
             </div>
           )}
           <a href={tooltip.data.github} target="_blank" rel="noreferrer"
-            style={{ fontSize: 11, color: TEXT_BRIGHT, textDecoration: "none" }}>
+            style={{ fontSize: 11, color: ACCENT, textDecoration: "none", opacity: 0.85 }}>
             github →
           </a>
         </div>
