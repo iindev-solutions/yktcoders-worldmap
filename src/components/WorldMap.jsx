@@ -26,7 +26,7 @@ const normalize = (c) => ({
   location: `${c.city}, ${c.country}`,
   countryId: c.country_id,
   coordinates: [c.lng, c.lat],
-  github: c.github || "#",
+  github: c.github && c.github.trim() && c.github !== "#" ? c.github : null,
   specialization: c.specialization || "",
   company: c.company || "",
 });
@@ -118,6 +118,10 @@ export default function WorldMap() {
         .enter()
         .append("circle")
         .attr("class", "marker")
+        .attr("data-bx", (d) => projection(d.coordinates)[0])
+        .attr("data-by", (d) => projection(d.coordinates)[1])
+        .attr("data-dx", (d) => jitter[d.id]?.dx || 0)
+        .attr("data-dy", (d) => jitter[d.id]?.dy || 0)
         .attr("cx", (d) => projection(d.coordinates)[0] + (jitter[d.id]?.dx || 0))
         .attr("cy", (d) => projection(d.coordinates)[1] + (jitter[d.id]?.dy || 0))
         .attr("r", 5)
@@ -192,7 +196,14 @@ export default function WorldMap() {
       let tx = t.x % scaledMapWidth;
       if (tx > 0) tx -= scaledMapWidth;
       g.attr("transform", `translate(${tx},${t.y}) scale(${t.k})`);
-      g.selectAll(".marker").attr("r", 5 / t.k);
+      g.selectAll(".marker")
+        .attr("r", 5 / t.k)
+        .attr("cx", function() {
+          return +d3.select(this).attr("data-bx") + (+d3.select(this).attr("data-dx")) / t.k;
+        })
+        .attr("cy", function() {
+          return +d3.select(this).attr("data-by") + (+d3.select(this).attr("data-dy")) / t.k;
+        });
     });
 
     svg.call(zoom);
@@ -383,10 +394,12 @@ export default function WorldMap() {
               → {tooltip.data.company}
             </div>
           )}
-          <a href={tooltip.data.github} target="_blank" rel="noreferrer"
-            style={{ fontSize: 11, color: ACCENT, textDecoration: "none", opacity: 0.85 }}>
-            github →
-          </a>
+          {tooltip.data.github && (
+            <a href={tooltip.data.github} target="_blank" rel="noreferrer"
+              style={{ fontSize: 11, color: ACCENT, textDecoration: "none", opacity: 0.85 }}>
+              github →
+            </a>
+          )}
         </div>
       )}
     </div>

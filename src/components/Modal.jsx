@@ -50,13 +50,15 @@ function CoderView({ data }) {
           → company: <span style={{ color: "#888" }}>{data.company}</span>
         </div>
       )}
-      <a href={data.github} target="_blank" rel="noreferrer" style={{
-        display: "inline-block", fontSize: 12, color: ACCENT,
-        textDecoration: "none", border: `1px solid ${ACCENT}`,
-        borderRadius: 4, padding: "6px 14px", opacity: 0.85,
-      }}>
-        github →
-      </a>
+      {data.github?.trim() && data.github !== "#" && (
+        <a href={data.github} target="_blank" rel="noreferrer" style={{
+          display: "inline-block", fontSize: 12, color: ACCENT,
+          textDecoration: "none", border: `1px solid ${ACCENT}`,
+          borderRadius: 4, padding: "6px 14px", opacity: 0.85,
+        }}>
+          github →
+        </a>
+      )}
     </>
   );
 }
@@ -87,10 +89,12 @@ function CountryView({ data }) {
             {c.company && (
               <div style={{ fontSize: 11, color: "#444", marginBottom: 4 }}>→ {c.company}</div>
             )}
-            <a href={c.github} target="_blank" rel="noreferrer"
-              style={{ fontSize: 11, color: ACCENT, textDecoration: "none", opacity: 0.85 }}>
-              github →
-            </a>
+            {c.github?.trim() && c.github !== "#" && (
+              <a href={c.github} target="_blank" rel="noreferrer"
+                style={{ fontSize: 11, color: ACCENT, textDecoration: "none", opacity: 0.85 }}>
+                github →
+              </a>
+            )}
           </div>
         ))}
       </div>
