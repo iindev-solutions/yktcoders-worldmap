@@ -94,7 +94,7 @@ export default function RegisterModal({ onClose, onSubmit }) {
         }}>×</button>
 
         <div style={{ fontSize: 11, color: ACCENT, marginBottom: 12 }}>
-          root@driveecon:~$ ./register --new-coder
+          root@yakutia:~$ ./register --new-coder
         </div>
         <div style={{ fontSize: 18, fontWeight: 700, color: "#ffffff", marginBottom: 4 }}>
           Отметиться на карте

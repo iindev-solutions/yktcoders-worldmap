@@ -314,10 +314,10 @@ export default function WorldMap() {
         fontFamily: FONT,
       }}>
         <div style={{ fontSize: 11, color: ACCENT, marginBottom: 6, pointerEvents: "none", userSelect: "none" }}>
-          root@driveecon:~$ ./map --show coders
+          root@yakutia:~$ ./map --show coders
         </div>
         <div style={{ fontSize: 22, fontWeight: 700, color: TEXT_BRIGHT, letterSpacing: "0.01em", pointerEvents: "none", userSelect: "none" }}>
-          driveeCON · карта разработчиков
+          карта разработчиков из Якутии
         </div>
         <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 6, pointerEvents: "none", userSelect: "none" }}>
           {allCoders.length} developers found_
@@ -340,21 +340,6 @@ export default function WorldMap() {
         >
           → отметиться на карте
         </button>
-        <a
-          href="https://driveecon.ru"
-          target="_blank"
-          rel="noreferrer"
-          style={{
-            display: "block",
-            marginTop: 10,
-            fontSize: 11,
-            color: TEXT_DIM,
-            textDecoration: "none",
-            letterSpacing: "0.05em",
-          }}
-        >
-          driveecon.ru ↗
-        </a>
       </div>
 
       <Modal data={modal} onClose={() => setModal(null)} />
@@ -376,7 +361,7 @@ export default function WorldMap() {
           minWidth: 200, fontFamily: FONT, boxShadow: "0 4px 24px rgba(0,0,0,0.6)",
         }}>
           <div style={{ fontSize: 11, color: ACCENT, marginBottom: 6 }}>
-            root@driveecon:~$ whoami
+            root@yakutia:~$ whoami
           </div>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#ffffff", marginBottom: 6 }}>
             {tooltip.data.name}

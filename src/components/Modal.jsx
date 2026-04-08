@@ -31,7 +31,7 @@ function CoderView({ data }) {
   return (
     <>
       <div style={{ fontSize: 11, color: ACCENT, marginBottom: 12 }}>
-        root@driveecon:~$ cat {data.name.toLowerCase().replace(/\s/g, "-")}.json
+        root@yakutia:~$ cat {data.name.toLowerCase().replace(/\s/g, "-")}.json
       </div>
       <div style={{ fontSize: 20, fontWeight: 700, color: "#ffffff", marginBottom: 6 }}>
         {data.name}
@@ -67,7 +67,7 @@ function CountryView({ data }) {
   return (
     <>
       <div style={{ fontSize: 11, color: ACCENT, marginBottom: 12 }}>
-        root@driveecon:~$ ls {data.countryName.toLowerCase().replace(/\s/g, "-")}/
+        root@yakutia:~$ ls {data.countryName.toLowerCase().replace(/\s/g, "-")}/
       </div>
       <div style={{ fontSize: 20, fontWeight: 700, color: "#ffffff", marginBottom: 6 }}>
         {data.countryName}
