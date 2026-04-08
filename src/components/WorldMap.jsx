@@ -31,6 +31,7 @@ const normalize = (c) => ({
   website:   c.website?.trim()   || null,
   specialization: c.specialization || "",
   company: c.company || "",
+  status: c.status?.trim() || null,
 });
 
 function buildClusters(coders, projection, zoomK) {
@@ -93,6 +94,7 @@ export default function WorldMap() {
   const zoomRef = useRef(null);
   const currentZoomKRef = useRef(1);
   const activeSpecRef = useRef(new Set());
+  const statusIntervalRef = useRef(null);
 
   const [useMock, setUseMock] = useState(
     () => localStorage.getItem("useMock") === "true" || import.meta.env.VITE_USE_MOCK === "true"
@@ -226,8 +228,80 @@ export default function WorldMap() {
     });
   }, []);
 
-  // Перерисовка при смене данных/фильтра
+  // Статус-пузыри в SVG
   useEffect(() => {
+    const eligible = allCoders.filter((c) => c.status);
+    if (!eligible.length) return;
+
+    let idx = Math.floor(Math.random() * eligible.length);
+
+    const showBubble = () => {
+      const g = gRef.current;
+      const projection = projectionRef.current;
+      if (!g || !projection || !g.node()) return;
+
+      const coder = eligible[idx % eligible.length];
+      idx++;
+
+      const [px, py] = projection(coder.coordinates);
+      const zoomK = currentZoomKRef.current;
+      const name = coder.name.split(" ")[0];
+      const text = `${name}: ${coder.status}`;
+      const fontSize = 9 / zoomK;
+      const pad = 8 / zoomK;
+      const bh = 18 / zoomK;
+      // Примерная ширина текста
+      const bw = text.length * (fontSize * 0.62) + pad * 2;
+      const bx = px + 8 / zoomK;
+      const by = py - bh - 8 / zoomK;
+
+      const grp = d3.select(gRef.current.node()).append("g").attr("class", "status-bubble");
+
+      grp.append("rect")
+        .attr("x", bx).attr("y", by)
+        .attr("width", bw).attr("height", bh)
+        .attr("rx", 3 / zoomK)
+        .attr("fill", "#0d0d0d")
+        .attr("stroke", "#96ea28")
+        .attr("stroke-width", 0.8 / zoomK)
+        .attr("opacity", 0)
+        .transition().duration(200).attr("opacity", 1);
+
+      grp.append("text")
+        .attr("x", bx + pad).attr("y", by + bh / 2)
+        .attr("dominant-baseline", "middle")
+        .attr("fill", "#fff")
+        .attr("font-size", `${fontSize}px`)
+        .attr("font-family", FONT)
+        .attr("pointer-events", "none")
+        .attr("opacity", 0)
+        .text(text)
+        .transition().duration(200).attr("opacity", 1);
+
+      grp.append("line")
+        .attr("x1", px).attr("y1", py - 5 / zoomK)
+        .attr("x2", bx + 4 / zoomK).attr("y2", by + bh)
+        .attr("stroke", "#96ea28")
+        .attr("stroke-width", 0.8 / zoomK)
+        .attr("opacity", 0)
+        .transition().duration(200).attr("opacity", 0.5);
+
+      setTimeout(() => {
+        grp.selectAll("*")
+          .transition().duration(300).attr("opacity", 0);
+        grp.transition().delay(300).remove();
+      }, 3000);
+    };
+
+    const schedule = () => {
+      showBubble();
+      statusIntervalRef.current = setTimeout(schedule, 3500 + Math.random() * 1500);
+    };
+
+    // TODO: fix status bubbles
+    // statusIntervalRef.current = setTimeout(schedule, 1500);
+    return () => clearTimeout(statusIntervalRef.current);
+  }, [allCoders]);  useEffect(() => {
     if (!mapReadyRef.current) return;
     drawMarkers(getVisible(allCoders, activeSpecs), currentZoomKRef.current);
   }, [allCoders, activeSpecs, drawMarkers]);
@@ -270,6 +344,7 @@ export default function WorldMap() {
         instagram: c.instagram?.trim() || null,
         website:   c.website?.trim()   || null,
         specialization: c.specialization || "", company: c.company || "",
+        status: c.status?.trim() || null,
       }));
       allCodersRef.current = normalized;
       rebuildCodersByCountry(normalized);

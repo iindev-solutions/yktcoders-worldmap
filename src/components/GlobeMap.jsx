@@ -22,6 +22,32 @@ export default function GlobeMap({ coders, activeSpecs, onMarkerClick }) {
     const svg = d3.select(svgRef.current).attr("width", W).attr("height", H);
     svg.selectAll("*").remove();
 
+    // Звёзды
+    const starCount = 250;
+    const stars = Array.from({ length: starCount }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.5 + 0.5,
+      o: Math.random() * 0.6 + 0.2,
+    }));
+    const starsG = svg.append("g").attr("class", "stars");
+    starsG.selectAll("circle").data(stars).enter().append("circle")
+      .attr("cx", (d) => d.x).attr("cy", (d) => d.y)
+      .attr("r", (d) => d.r).attr("fill", "#fff").attr("opacity", (d) => d.o);
+
+    // Мерцание
+    function twinkle() {
+      starsG.selectAll("circle")
+        .filter(() => Math.random() < 0.15)
+        .transition().duration(400)
+        .attr("opacity", 0.05)
+        .attr("r", (d) => d.r * 0.5)
+        .transition().duration(400)
+        .attr("opacity", (d) => d.o)
+        .attr("r", (d) => d.r);
+    }
+    const twinkleInterval = setInterval(twinkle, 500);
+
     const projection = d3.geoOrthographic()
       .scale(radius)
       .translate([W / 2, H / 2])
@@ -138,7 +164,10 @@ export default function GlobeMap({ coders, activeSpecs, onMarkerClick }) {
       redraw();
     };
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      clearInterval(twinkleInterval);
+    };
   }, [coders, activeSpecs]);
 
   return <svg ref={svgRef} style={{ display: "block", position: "absolute", inset: 0 }} />;

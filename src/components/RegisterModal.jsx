@@ -71,6 +71,7 @@ const REQUIRED = [
 
 const OPTIONAL_TEXT = [
   { key: "company", label: "компания", placeholder: "Freelance / ACME Corp" },
+  { key: "status", label: "статус", placeholder: "Hello World! 👋" },
 ];
 
 const OPTIONAL_LINKS = [
