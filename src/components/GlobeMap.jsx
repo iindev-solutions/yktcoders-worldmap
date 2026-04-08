@@ -9,7 +9,7 @@ const COUNTRY_STROKE = "#3d3d3d";
 const MARKER_FILL = "#96ea28";
 const MARKER_HOVER = "#ffffff";
 
-export default function GlobeMap({ coders, activeSpecs, onMarkerClick }) {
+export default function GlobeMap({ coders, activeSpecs, onMarkerClick, onReady }) {
   const svgRef = useRef(null);
 
   const getVisible = (list) =>
@@ -84,18 +84,24 @@ export default function GlobeMap({ coders, activeSpecs, onMarkerClick }) {
       bgCircle.attr("r", projection.scale());
 
       markersG.selectAll(".marker").each(function(d) {
-        const p = projection(d.coordinates);
+        const coords = d.coordinates || d;
+        const p = projection(coords);
         if (!p) return;
-        // dot product — скрываем обратную сторону
         const r = projection.rotate();
-        const [lon, lat] = d.coordinates;
+        const [lon, lat] = coords;
         const dot =
           Math.sin((lat * Math.PI) / 180) * Math.sin((-r[1] * Math.PI) / 180) +
           Math.cos((lat * Math.PI) / 180) * Math.cos((-r[1] * Math.PI) / 180) *
           Math.cos(((lon + r[0]) * Math.PI) / 180);
-        d3.select(this)
-          .attr("cx", p[0]).attr("cy", p[1])
-          .attr("visibility", dot > 0 ? "visible" : "hidden");
+        const el = d3.select(this);
+        const isGroup = this.tagName === "g";
+        if (isGroup) {
+          el.attr("transform", `translate(${p[0]},${p[1]})`)
+            .attr("visibility", dot > 0 ? "visible" : "hidden");
+        } else {
+          el.attr("cx", p[0]).attr("cy", p[1])
+            .attr("visibility", dot > 0 ? "visible" : "hidden");
+        }
       });
     };
 
@@ -139,22 +145,72 @@ export default function GlobeMap({ coders, activeSpecs, onMarkerClick }) {
         .attr("fill", COUNTRY_FILL).attr("stroke", COUNTRY_STROKE).attr("stroke-width", 0.4);
 
       const visible = getVisible(coders);
-      markersG.selectAll(".marker").data(visible).enter().append("circle")
-        .attr("class", "marker").attr("r", 4)
-        .attr("fill", MARKER_FILL).attr("stroke", "none")
-        .style("cursor", "pointer")
-        .on("mouseenter", (event) => {
-          d3.select(event.currentTarget).attr("fill", MARKER_HOVER).attr("r", 6);
-        })
-        .on("mouseleave", (event) => {
-          d3.select(event.currentTarget).attr("fill", MARKER_FILL).attr("r", 4);
-        })
-        .on("click", (event, d) => {
-          event.stopPropagation();
-          onMarkerClick?.(d);
-        });
+
+      // Группируем по координатам
+      const cityGroups = {};
+      visible.forEach((d) => {
+        const key = `${d.coordinates[0]}_${d.coordinates[1]}`;
+        if (!cityGroups[key]) cityGroups[key] = [];
+        cityGroups[key].push(d);
+      });
+      const groups = Object.values(cityGroups);
+
+      groups.forEach((group) => {
+        const d = group[0];
+        const isCluster = group.length > 1;
+
+        if (isCluster) {
+          const grp = markersG.append("g").attr("class", "marker")
+            .datum({ coordinates: d.coordinates })
+            .style("cursor", "pointer");
+
+          grp.append("circle")
+            .attr("r", 8).attr("fill", "#1a2e05")
+            .attr("stroke", "#96ea28").attr("stroke-width", 1);
+
+          grp.append("text")
+            .attr("text-anchor", "middle").attr("dominant-baseline", "middle")
+            .attr("fill", "#96ea28").attr("font-size", "7px")
+            .attr("font-family", "'JetBrains Mono', monospace")
+            .attr("pointer-events", "none")
+            .text(group.length);
+
+          grp
+            .on("mouseenter", () => {
+              grp.select("circle").transition().duration(150)
+                .attr("fill", "#2a4a0a").attr("stroke", "#ffffff");
+            })
+            .on("mouseleave", () => {
+              grp.select("circle").transition().duration(150)
+                .attr("fill", "#1a2e05").attr("stroke", "#96ea28");
+            })
+            .on("click", (event) => {
+              event.stopPropagation();
+              const city = group[0].city;
+              const uniqueCities = [...new Set(group.map((c) => c.city))];
+              onMarkerClick?.({ mode: "country", countryName: uniqueCities.join(", "), coders: group });
+            });
+        } else {
+          markersG.append("circle")
+            .attr("class", "marker").attr("r", 4)
+            .attr("fill", MARKER_FILL).attr("stroke", "none")
+            .style("cursor", "pointer")
+            .datum(d)
+            .on("mouseenter", (event) => {
+              d3.select(event.currentTarget).attr("fill", MARKER_HOVER).attr("r", 6);
+            })
+            .on("mouseleave", (event) => {
+              d3.select(event.currentTarget).attr("fill", MARKER_FILL).attr("r", 4);
+            })
+            .on("click", (event) => {
+              event.stopPropagation();
+              onMarkerClick?.(d);
+            });
+        }
+      });
 
       redraw();
+      onReady?.(projection, redraw);
     });
 
     const onResize = () => {

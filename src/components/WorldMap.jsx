@@ -95,6 +95,8 @@ export default function WorldMap() {
   const zoomRef = useRef(null);
   const currentZoomKRef = useRef(1);
   const activeSpecRef = useRef(new Set());
+  const globeProjectionRef = useRef(null);
+  const globeRedrawRef = useRef(null);
   const statusIntervalRef = useRef(null);
 
   const [useMock, setUseMock] = useState(
@@ -319,6 +321,25 @@ export default function WorldMap() {
   }, [searchQuery]);
 
   const flyTo = (coder) => {
+    setSearchQuery(""); setSearchResults([]); setSearchOpen(false);
+
+    if (showGlobe) {
+      // Вращаем глобус к нужной точке
+      const proj = globeProjectionRef.current;
+      const redraw = globeRedrawRef.current;
+      if (!proj || !redraw) return;
+      const [lon, lat] = coder.coordinates;
+      const r = proj.rotate();
+      const targetRotate = [-lon, -lat, r[2]];
+      // Плавная анимация через интерполяцию
+      const i = d3.interpolate(proj.rotate(), targetRotate);
+      d3.transition().duration(800).tween("rotate", () => (t) => {
+        proj.rotate(i(t));
+        redraw();
+      });
+      return;
+    }
+
     const svg = d3.select(svgNodeRef.current);
     const projection = projectionRef.current;
     const W = window.innerWidth, H = window.innerHeight;
@@ -328,7 +349,6 @@ export default function WorldMap() {
       zoomRef.current.transform,
       d3.zoomIdentity.translate(W / 2 - px * k, H / 2 - py * k).scale(k)
     );
-    setSearchQuery(""); setSearchResults([]); setSearchOpen(false);
   };
 
   // Загрузка данных + realtime
@@ -591,6 +611,10 @@ export default function WorldMap() {
           coders={allCoders}
           activeSpecs={activeSpecs}
           onMarkerClick={(d) => setModal(d)}
+          onReady={(proj, redraw) => {
+            globeProjectionRef.current = proj;
+            globeRedrawRef.current = redraw;
+          }}
         />
       )}
 
@@ -619,7 +643,7 @@ export default function WorldMap() {
           display: "block", marginTop: 6, fontSize: isMobile ? 9 : 11, color: TEXT_DIM,
           textDecoration: "none", letterSpacing: "0.05em",
         }}>
-          о проекте ↗
+          about ↗
         </a>
         <button onClick={toggleMock} style={{
           marginTop: 6, display: "block", background: "none", border: "none",
@@ -636,8 +660,7 @@ export default function WorldMap() {
           cursor: "pointer", letterSpacing: "0.05em", textAlign: "left",
         }}>
           {showGlobe ? "● globe" : "○ globe"}
-        </button>
-        <button onClick={() => setShowRegister(true)} style={{
+        </button>        <button onClick={() => setShowRegister(true)} style={{
           marginTop: isMobile ? 8 : 14, display: "block", background: "none",
           border: `1px solid ${ACCENT}`, borderRadius: 4,
           padding: isMobile ? "5px 10px" : "7px 16px",
@@ -645,6 +668,31 @@ export default function WorldMap() {
           cursor: "pointer", letterSpacing: "0.05em",
         }}>
           → отметиться на карте
+        </button>
+      </div>
+
+      {/* Верхняя центральная панель */}
+      <div style={{
+        position: "absolute", top: isMobile ? 14 : 28, left: "50%", transform: "translateX(-50%)",
+        display: "flex", alignItems: "center", gap: isMobile ? 12 : 20,
+        fontFamily: FONT, fontSize: isMobile ? 10 : 11, zIndex: 10,
+      }}>
+        <a href="/about" style={{ color: TEXT_DIM, textDecoration: "none", letterSpacing: "0.05em" }}>
+          about ↗
+        </a>
+        <button onClick={toggleMock} style={{
+          background: "none", border: "none", padding: 0,
+          color: useMock ? ACCENT : "#444",
+          fontFamily: FONT, fontSize: "inherit", cursor: "pointer", letterSpacing: "0.05em",
+        }}>
+          {useMock ? "● mock" : "○ mock"}
+        </button>
+        <button onClick={toggleGlobe} style={{
+          background: "none", border: "none", padding: 0,
+          color: showGlobe ? ACCENT : "#444",
+          fontFamily: FONT, fontSize: "inherit", cursor: "pointer", letterSpacing: "0.05em",
+        }}>
+          {showGlobe ? "● globe" : "○ globe"}
         </button>
       </div>
 
@@ -722,6 +770,7 @@ export default function WorldMap() {
           onClose={() => setShowRegister(false)}
           onSubmit={handleRegister}
           existingCoders={allCoders}
+          isMockMode={useMock}
         />
       )}
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}

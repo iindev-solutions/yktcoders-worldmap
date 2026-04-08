@@ -40,7 +40,7 @@ function CitySearch({ onSelect }) {
 
   return (
     <div style={{ position: "relative" }}>
-      <div style={{ fontSize: 11, color: "#444", marginBottom: 4 }}>→ город *</div>
+      <div style={{ fontSize: 11, color: "#444", marginBottom: 4 }}>→ город <span style={{color: "#f84e4eff"}}>*</span></div>
       <input value={query} onChange={(e) => setQuery(e.target.value)}
         placeholder="Начните вводить город..." autoComplete="off" style={inputStyle} />
       {loading && <div style={{ fontSize: 11, color: "#444", marginTop: 4 }}>searching_</div>}
@@ -65,13 +65,13 @@ function CitySearch({ onSelect }) {
 }
 
 const REQUIRED = [
-  { key: "name", label: "ФИО *", placeholder: "Иван Иванов" },
-  { key: "specialization", label: "специализация *", placeholder: "Frontend / Backend / DevOps" },
+  { key: "name", label: "ФИО", placeholder: "Иван Иванов" },
+  { key: "specialization", label: "специализация", placeholder: "Frontend / Backend / DevOps" },
 ];
 
 const OPTIONAL_TEXT = [
   { key: "company", label: "компания", placeholder: "Freelance / ACME Corp" },
-  { key: "status", label: "статус", placeholder: "Hello World! 👋" },
+  // { key: "status", label: "статус", placeholder: "Hello World! 👋" },
 ];
 
 const OPTIONAL_LINKS = [
@@ -82,7 +82,7 @@ const OPTIONAL_LINKS = [
   { key: "website",  label: "сайт",     placeholder: "https://example.com" },
 ];
 
-export default function RegisterModal({ onClose, onSubmit, existingCoders = [] }) {
+export default function RegisterModal({ onClose, onSubmit, existingCoders = [], isMockMode = false }) {
   const [form, setForm] = useState({
     name: "", specialization: "", company: "",
     github: "", telegram: "", linkedin: "", instagram: "", website: "",
@@ -132,11 +132,20 @@ export default function RegisterModal({ onClose, onSubmit, existingCoders = [] }
         </div>
         <div style={{ width: 24, height: 1, background: ACCENT, marginBottom: 20, opacity: 0.4 }} />
 
+        {isMockMode && (
+          <div style={{
+            fontSize: 11, color: "rgb(207, 138, 48)", background: "#111", border: "1px solid rgb(207, 138, 48)",
+            borderRadius: 4, padding: "8px 12px", marginBottom: 16,
+          }}>
+            ⚠ mock режим — данные не сохранятся в базе
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
           {REQUIRED.map(({ key, label, placeholder }) => (
             <div key={key}>
-              <div style={{ fontSize: 11, color: "#444", marginBottom: 4 }}>→ {label}</div>
+              <div style={{ fontSize: 11, color: "#444", marginBottom: 4 }}>→ {label} <span style={{color: "#f84e4eff"}}>*</span></div>
               <input value={form[key]} onChange={set(key)} placeholder={placeholder} style={inputStyle} />
             </div>
           ))}
@@ -168,12 +177,14 @@ export default function RegisterModal({ onClose, onSubmit, existingCoders = [] }
             </div>
           ))}
 
-          {error && <div style={{ fontSize: 11, color: "#666", marginTop: 4 }}>error: {error}</div>}
+          {error && <div style={{ fontSize: 11, color: "#f84e4eff", marginTop: 4 }}>error: {error}</div>}
 
-          <button type="submit" style={{
+          <style>{`.reg-submit:hover { background: #96ea28 !important; color: #000 !important; }`}</style>
+          <button type="submit" className="reg-submit" style={{
             marginTop: 4, background: "none", border: `1px solid ${ACCENT}`,
             borderRadius: 4, padding: "8px 0", color: ACCENT,
             fontFamily: FONT, fontSize: 12, cursor: "pointer",
+            transition: "background 0.15s, color 0.15s",
           }}>
             → submit
           </button>
