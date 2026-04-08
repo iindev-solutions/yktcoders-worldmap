@@ -3,6 +3,7 @@ import * as d3 from "d3";
 import * as topojson from "topojson-client";
 import Modal from "./Modal";
 import GlobeMap from "./GlobeMap";
+import CookieBanner from "./CookieBanner";
 import RegisterModal from "./RegisterModal";
 import Toast from "./Toast";
 import { supabase } from "../lib/supabase";
@@ -612,17 +613,8 @@ export default function WorldMap() {
           карта разработчиков из Якутии
         </div>
         <div style={{ fontSize: isMobile ? 9 : 11, color: TEXT_DIM, marginTop: 4, pointerEvents: "none", userSelect: "none" }}>
-          {allCoders.length} developers found_
+          <span style={{color: ACCENT}}>{allCoders.length}</span> developers found_
         </div>
-        <button onClick={() => setShowRegister(true)} style={{
-          marginTop: isMobile ? 8 : 14, display: "block", background: "none",
-          border: `1px solid ${ACCENT}`, borderRadius: 4,
-          padding: isMobile ? "5px 10px" : "7px 16px",
-          color: ACCENT, fontFamily: FONT, fontSize: isMobile ? 10 : 11,
-          cursor: "pointer", letterSpacing: "0.05em",
-        }}>
-          → отметиться на карте
-        </button>
         <a href="/about" style={{
           display: "block", marginTop: 6, fontSize: isMobile ? 9 : 11, color: TEXT_DIM,
           textDecoration: "none", letterSpacing: "0.05em",
@@ -644,6 +636,15 @@ export default function WorldMap() {
           cursor: "pointer", letterSpacing: "0.05em", textAlign: "left",
         }}>
           {showGlobe ? "● globe" : "○ globe"}
+        </button>
+        <button onClick={() => setShowRegister(true)} style={{
+          marginTop: isMobile ? 8 : 14, display: "block", background: "none",
+          border: `1px solid ${ACCENT}`, borderRadius: 4,
+          padding: isMobile ? "5px 10px" : "7px 16px",
+          color: ACCENT, fontFamily: FONT, fontSize: isMobile ? 10 : 11,
+          cursor: "pointer", letterSpacing: "0.05em",
+        }}>
+          → отметиться на карте
         </button>
       </div>
 
@@ -724,6 +725,7 @@ export default function WorldMap() {
         />
       )}
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
+      <CookieBanner />
     </div>
   );
 }
