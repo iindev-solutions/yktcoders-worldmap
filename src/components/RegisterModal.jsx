@@ -89,6 +89,7 @@ export default function RegisterModal({ onClose, onSubmit, existingCoders = [], 
     city: "", country: "", lat: null, lng: null,
   });
   const [error, setError] = useState("");
+  const [linksOpen, setLinksOpen] = useState(false);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
@@ -168,9 +169,21 @@ export default function RegisterModal({ onClose, onSubmit, existingCoders = [], 
           ))}
 
           <div style={{ width: 24, height: 1, background: "#222", marginTop: 4 }} />
-          <div style={{ fontSize: 11, color: "#333" }}>→ ссылки (опционально)</div>
+          <button
+            type="button"
+            onClick={() => setLinksOpen((v) => !v)}
+            style={{
+              background: "none", border: "none", padding: 0,
+              color: linksOpen ? ACCENT : "#444", fontFamily: FONT,
+              fontSize: 11, cursor: "pointer", textAlign: "left",
+              display: "flex", alignItems: "center", gap: 6,
+            }}
+          >
+            <span style={{ transition: "transform 0.2s", display: "inline-block", transform: linksOpen ? "rotate(90deg)" : "rotate(0deg)" }}>▶</span>
+            ссылки (опционально)
+          </button>
 
-          {OPTIONAL_LINKS.map(({ key, label, placeholder }) => (
+          {linksOpen && OPTIONAL_LINKS.map(({ key, label, placeholder }) => (
             <div key={key}>
               <div style={{ fontSize: 11, color: "#444", marginBottom: 4 }}>→ {label}</div>
               <input value={form[key]} onChange={set(key)} placeholder={placeholder} style={inputStyle} />
