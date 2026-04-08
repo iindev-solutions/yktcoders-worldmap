@@ -1,17 +1,31 @@
-# yktcoders worldmap
+# карта разработчиков из Якутии
 
-An interactive world map showing developers from Yakutia — where they live, what they build, and how to find them.
+```
+root@yakutia:~$ cat README.md
+```
 
----
-
-Yakutia is one of the coldest places on Earth. It's also home to a growing community of developers building real products — from enterprise software to AI tools — in conditions most people wouldn't code in.
-
-This map exists to make that community visible.
-
-Every dot is a person. Click it to see who they are, what they specialize in, and where to find their work. If you're a developer from Yakutia, you can put yourself on the map too.
+Интерактивная карта разработчиков из Якутии и якутского IT-сообщества по всему миру.
+Отмечай себя, находи земляков по городу или специализации, следи за ростом комьюнити в реальном времени.
 
 ---
 
-**Stack:** React · D3.js · Supabase · Vite
+## → как это работает
 
-**Design:** Monochrome. Terminal-inspired. No noise.
+- Нажми «отметиться на карте» и заполни форму
+- Твоя точка появится на карте мгновенно у всех онлайн
+- Кликай на точки чтобы смотреть профили
+- Фильтруй по специализации через теги снизу
+- Ищи по имени или городу через поиск справа
+- Переключись в режим глобуса — кнопка «globe» в левом углу
+
+## → стек
+
+- React + Vite
+- D3.js + TopoJSON — карта и визуализация
+- Versor — вращение 3D глобуса через кватернионы
+- Supabase — база данных и realtime
+- Nominatim — геокодинг городов
+
+## → ссылки
+
+- [GitHub](https://github.com/iindev-solutions/yktcoders-worldmap)

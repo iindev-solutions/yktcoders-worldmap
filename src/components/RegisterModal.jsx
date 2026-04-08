@@ -40,9 +40,9 @@ function CitySearch({ onSelect }) {
 
   return (
     <div style={{ position: "relative" }}>
-      <div style={{ fontSize: 11, color: "#444", marginBottom: 4 }}>→ city</div>
+      <div style={{ fontSize: 11, color: "#444", marginBottom: 4 }}>→ город *</div>
       <input value={query} onChange={(e) => setQuery(e.target.value)}
-        placeholder="Start typing a city..." autoComplete="off" style={inputStyle} />
+        placeholder="Начните вводить город..." autoComplete="off" style={inputStyle} />
       {loading && <div style={{ fontSize: 11, color: "#444", marginTop: 4 }}>searching_</div>}
       {results.length > 0 && (
         <div style={{
@@ -64,15 +64,45 @@ function CitySearch({ onSelect }) {
   );
 }
 
-export default function RegisterModal({ onClose, onSubmit }) {
-  const [form, setForm] = useState({ name: "", city: "", country: "", specialization: "", company: "", github: "", lat: null, lng: null });
+const REQUIRED = [
+  { key: "name", label: "ФИО *", placeholder: "Иван Иванов" },
+  { key: "specialization", label: "специализация *", placeholder: "Frontend / Backend / DevOps" },
+];
+
+const OPTIONAL_TEXT = [
+  { key: "company", label: "компания", placeholder: "Freelance / ACME Corp" },
+];
+
+const OPTIONAL_LINKS = [
+  { key: "github",   label: "github",   placeholder: "https://github.com/username" },
+  { key: "telegram", label: "telegram", placeholder: "https://t.me/username" },
+  { key: "linkedin", label: "linkedin", placeholder: "https://linkedin.com/in/username" },
+  { key: "instagram",label: "instagram",placeholder: "https://instagram.com/username" },
+  { key: "website",  label: "сайт",     placeholder: "https://example.com" },
+];
+
+export default function RegisterModal({ onClose, onSubmit, existingCoders = [] }) {
+  const [form, setForm] = useState({
+    name: "", specialization: "", company: "",
+    github: "", telegram: "", linkedin: "", instagram: "", website: "",
+    city: "", country: "", lat: null, lng: null,
+  });
   const [error, setError] = useState("");
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.name || !form.city || !form.lat) { setError("name and city are required_"); return; }
+    if (!form.name.trim()) { setError("ФИО обязательно_"); return; }
+    if (!form.specialization.trim()) { setError("специализация обязательна_"); return; }
+    if (!form.city || !form.lat) { setError("город обязателен_"); return; }
+
+    const isDuplicate = existingCoders.some(
+      (c) => c.name.trim().toLowerCase() === form.name.trim().toLowerCase() &&
+             c.city.trim().toLowerCase() === form.city.trim().toLowerCase()
+    );
+    if (isDuplicate) { setError(`уже есть: ${form.name} из ${form.city}_`); return; }
+
     onSubmit(form);
     onClose();
   };
@@ -102,12 +132,8 @@ export default function RegisterModal({ onClose, onSubmit }) {
         <div style={{ width: 24, height: 1, background: ACCENT, marginBottom: 20, opacity: 0.4 }} />
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {[
-            { key: "name", label: "name", placeholder: "Иван Иванов" },
-            { key: "specialization", label: "specialization", placeholder: "Frontend / Backend / DevOps" },
-            { key: "company", label: "company", placeholder: "Freelance / ACME Corp" },
-            { key: "github", label: "github", placeholder: "https://github.com/username" },
-          ].map(({ key, label, placeholder }) => (
+
+          {REQUIRED.map(({ key, label, placeholder }) => (
             <div key={key}>
               <div style={{ fontSize: 11, color: "#444", marginBottom: 4 }}>→ {label}</div>
               <input value={form[key]} onChange={set(key)} placeholder={placeholder} style={inputStyle} />
@@ -120,11 +146,28 @@ export default function RegisterModal({ onClose, onSubmit }) {
 
           {form.lat && (
             <div style={{ fontSize: 11, color: "#333" }}>
-              → coordinates: {form.lat.toFixed(4)}, {form.lng.toFixed(4)}
+              → {form.city}, {form.country} ({form.lat.toFixed(4)}, {form.lng.toFixed(4)})
             </div>
           )}
 
-          {error && <div style={{ fontSize: 11, color: "#666" }}>error: {error}</div>}
+          {OPTIONAL_TEXT.map(({ key, label, placeholder }) => (
+            <div key={key}>
+              <div style={{ fontSize: 11, color: "#444", marginBottom: 4 }}>→ {label}</div>
+              <input value={form[key]} onChange={set(key)} placeholder={placeholder} style={inputStyle} />
+            </div>
+          ))}
+
+          <div style={{ width: 24, height: 1, background: "#222", marginTop: 4 }} />
+          <div style={{ fontSize: 11, color: "#333" }}>→ ссылки (опционально)</div>
+
+          {OPTIONAL_LINKS.map(({ key, label, placeholder }) => (
+            <div key={key}>
+              <div style={{ fontSize: 11, color: "#444", marginBottom: 4 }}>→ {label}</div>
+              <input value={form[key]} onChange={set(key)} placeholder={placeholder} style={inputStyle} />
+            </div>
+          ))}
+
+          {error && <div style={{ fontSize: 11, color: "#666", marginTop: 4 }}>error: {error}</div>}
 
           <button type="submit" style={{
             marginTop: 4, background: "none", border: `1px solid ${ACCENT}`,
